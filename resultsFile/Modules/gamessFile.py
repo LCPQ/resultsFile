@@ -38,7 +38,7 @@ gamessFile_defined_vars = [ "date", "version", "machine", "memory", "disk",\
                 "Ne_pot_energies", "pot_energies", \
                 "kin_energies", "virials", "point_group", "num_elec", \
                 "charge", "multiplicity","nuclear_energy","dipole","geometry",\
-                "basis","mo_sets","mo_types","mulliken_mo","mulliken_ao",\
+                "basis","pseudo", "mo_sets","mo_types","mulliken_mo","mulliken_ao",\
                 "mulliken_atom","lowdin_ao", "mulliken_atom","lowdin_atom",\
                 "two_e_int_ao", "determinants", "num_alpha", "num_beta",\
                 "closed_mos", "active_mos", "virtual_mos", \
@@ -1347,6 +1347,59 @@ class gamessFile(resultsFile):
         except IndexError:
           pass
       return self._num_states
+
+   def get_pseudo(self):
+     try:
+        self.find_string('ECP POTENTIALS')
+     except IndexError:
+         raise TypeError('No ECP')
+     else:
+        pos_begin = self._pos
+
+     try:
+        self.find_string('THE ECP RUN REMOVES')
+     except IndexError:
+        raise TypeError('Cannot parse ECP')
+     else:
+        pos_end = self._pos
+
+     raw_str = ''.join(self.text[pos_begin+2:pos_end])
+     l_param_atom = raw_str.split('\n\n')
+     
+     import re 
+     regex = r"PARAMETERS FOR \"(.*)\" ON ATOM\s+(\d+) WITH ZCORE\s+(\d+) AND LMAX\s+(\d+) ARE"
+     regex_l = r"FOR L=\s+\d+\s+COEFF\s+N\s+ZETA\s*"
+
+     regex_already_existing_atom = r"PARAMETERS FOR \"(.*)\" ON ATOM\s+(\d+) ARE THE SAME AS ATOM\s+(\d+)\s*$"
+
+     d = dict()
+
+     for param in [i for i in l_param_atom if i]:
+        matches = re.findall(regex, param)
+        if matches:
+	    name, label,zcore, lmax = matches[0]
+	    l_str =  ['{0} GEN {1} {2}'.format(name, zcore, lmax)]
+            #l_bloc
+	    l_lblock = re.split(regex_l,param)[1:]
+	    for l in l_lblock:
+                lignes = [i.strip() for i in l.split('\n') if i.strip()]
+                l_str.append(len(lignes))
+		l_str += lignes
+            l_str.append('')
+ 
+	    d[int(label)] = '\n'.join(map(str,l_str))
+        else:
+	   matches = re.findall(regex_already_existing_atom, param)      
+	   name, label, label_ref = matches[0]
+	   d[int(label)] = d[int(label_ref)]
+
+
+     result = ""
+     for i in range(len(d)):
+	result+= d[i+1]
+	result+= '\n'
+
+     return result
 
 # Properties
 # ----------
