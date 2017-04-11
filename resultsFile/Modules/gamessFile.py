@@ -44,7 +44,7 @@ gamessFile_defined_vars = [ "date", "version", "machine", "memory", "disk",\
                 "closed_mos", "active_mos", "virtual_mos", \
                 "determinants_mo_type", "det_coefficients", \
                 "csf_mo_type", "csf_coefficients", "symmetries", "occ_num", \
-                "csf", "num_states", "two_e_int_ao_filename",
+                "csf", "num_states", "two_e_int_ao_filename", "pseudo", 
                 "one_e_int_ao_filename", "atom_to_ao_range", "gradient_energy" ]
 
 class gamessFile(resultsFile):
@@ -1347,6 +1347,65 @@ class gamessFile(resultsFile):
         except IndexError:
           pass
       return self._num_states
+
+
+   def get_pseudo(self):
+     if self._pseudo is None:
+        try:
+          self.find_string("ECP POTENTIALS")
+        except IndexError:
+          return None
+        pos = self._pos
+        try:
+          self.find_string("THE ECP RUN REMOVES")
+        except IndexError:
+          return None
+        end = self._pos
+        pos += 3
+        pseudo_read = []
+        while pos < end:
+          line = self.text[pos][35:].split()
+          pos += 1
+          ecp = {}
+          try:
+            atom = line[0]
+          except:
+            continue
+          try:
+            ecp["zcore"] = int(line[3])
+            ecp["atom"]  = atom
+          except ValueError:  # Same as ...
+            print line
+            ecp = dict( pseudo_read[ int(line[6])-1 ] )
+            ecp["atom"]  = atom
+          else:
+            lmax  = int(line[6])
+            ecp["lmax"] = lmax
+            for l in range(lmax+1):
+              line = self.text[pos].split()
+              l = int(line[2])
+              pos += 1
+              contraction = []
+              while True:
+                line = self.text[pos].split()
+                try:
+                  i = int(line[0])
+                except ValueError:
+                  break
+                except IndexError:
+                  break
+                coef = float(line[1])
+                n    = int(line[2])
+                zeta = float(line[3])
+                contraction.append( (coef, n, zeta) )
+                pos += 1
+              ecp[str(l)] = contraction
+          pseudo_read.append(ecp)
+
+        self._pseudo = pseudo_read
+     return self._pseudo
+
+
 
 # Properties
 # ----------

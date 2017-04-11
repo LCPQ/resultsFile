@@ -82,6 +82,8 @@ local_vars = [ \
    # Basis set
     ( 'basis'         , "Basis set definition"),
     ( 'uncontracted_basis', "Uncontracted Basis set"),
+   # Pseudopotentials
+    ( 'pseudo'        , "Pseudopotential data"),
    # Orbitals
     ( 'mo_sets'       , "List of molecular orbitals"),
     ( 'mo_types'      , "Types of molecular orbitals (canonical, natural,...)"),
