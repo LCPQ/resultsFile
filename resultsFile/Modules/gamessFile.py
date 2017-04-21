@@ -38,7 +38,7 @@ gamessFile_defined_vars = [ "date", "version", "machine", "memory", "disk",\
                 "Ne_pot_energies", "pot_energies", \
                 "kin_energies", "virials", "point_group", "num_elec", \
                 "charge", "multiplicity","nuclear_energy","dipole","geometry",\
-                "basis","mo_sets","mo_types","mulliken_mo","mulliken_ao",\
+                "basis","pseudo", "mo_sets","mo_types","mulliken_mo","mulliken_ao",\
                 "mulliken_atom","lowdin_ao", "mulliken_atom","lowdin_atom",\
                 "two_e_int_ao", "determinants", "num_alpha", "num_beta",\
                 "closed_mos", "active_mos", "virtual_mos", \
@@ -1347,7 +1347,6 @@ class gamessFile(resultsFile):
         except IndexError:
           pass
       return self._num_states
-
 
    def get_pseudo(self):
      if self._pseudo is None:
