@@ -1368,7 +1368,7 @@ class gamessFile(resultsFile):
           pos += 1
           ecp = {}
           try:
-            atom = line[0]
+            atom = int(line[0])
           except:
             continue
           try:
