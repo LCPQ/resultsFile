@@ -1367,14 +1367,13 @@ class gamessFile(resultsFile):
           pos += 1
           ecp = {}
           try:
-            atom = line[0]
+            atom = int(line[0])
           except:
             continue
           try:
             ecp["zcore"] = int(line[3])
             ecp["atom"]  = atom
           except ValueError:  # Same as ...
-            print line
             ecp = dict( pseudo_read[ int(line[6])-1 ] )
             ecp["atom"]  = atom
           else:
