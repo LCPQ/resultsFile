@@ -1374,7 +1374,6 @@ class gamessFile(resultsFile):
             ecp["zcore"] = int(line[3])
             ecp["atom"]  = atom
           except ValueError:  # Same as ...
-            print line
             ecp = dict( pseudo_read[ int(line[6])-1 ] )
             ecp["atom"]  = atom
           else:
